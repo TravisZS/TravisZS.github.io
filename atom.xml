@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>炸薯条のBlog</title>
+  <icon>http://traviszs.github.io/icon.png</icon>
+  <subtitle>欢迎来到炸薯条的空间</subtitle>
+  <link href="http://traviszs.github.io/atom.xml" rel="self"/>
+  
+  <link href="http://traviszs.github.io/"/>
+  <updated>2024-02-04T09:47:54.898Z</updated>
+  <id>http://traviszs.github.io/</id>
+  
+  <author>
+    <name>炸薯条</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="http://traviszs.github.io/2024/02/04/hello-world/"/>
+    <id>http://traviszs.github.io/2024/02/04/hello-world/</id>
+    <published>2024-02-04T09:47:54.898Z</published>
+    <updated>2024-02-04T09:47:54.898Z</updated>
+    
+    
+      
+      
+        
+        
+    <summary type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot;&gt;documentation&lt;/a&gt;</summary>
+        
+      
+    
+    
+    
+    
+  </entry>
+  
+</feed>
