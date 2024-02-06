@@ -6,7 +6,7 @@
   <link href="https://shutiaoz.top/atom.xml" rel="self"/>
   
   <link href="https://shutiaoz.top/"/>
-  <updated>2024-02-04T09:47:54.898Z</updated>
+  <updated>2023-11-14T16:00:00.000Z</updated>
   <id>https://shutiaoz.top/</id>
   
   <author>
@@ -17,23 +17,34 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Hello World</title>
-    <link href="https://shutiaoz.top/2024/02/04/hello-world/"/>
-    <id>https://shutiaoz.top/2024/02/04/hello-world/</id>
-    <published>2024-02-04T09:47:54.898Z</published>
-    <updated>2024-02-04T09:47:54.898Z</updated>
+    <title>PicGo+VSCode+Github</title>
+    <link href="https://shutiaoz.top/2023/10/20/PicGo-VSCode-Github/"/>
+    <id>https://shutiaoz.top/2023/10/20/PicGo-VSCode-Github/</id>
+    <published>2023-10-20T14:09:00.000Z</published>
+    <updated>2023-11-14T16:00:00.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot;&gt;documentation&lt;/a&gt;</summary>
+    <summary type="html">&lt;p&gt;VSCode 中有一个插件 PicGo 还算好用，可以一键将图片上传然后将链接粘贴到 Markdown 中。&lt;/p&gt;
+&lt;p&gt;写博客的时候直接把 Markdown</summary>
         
       
     
     
     
+    <category term="折腾" scheme="https://shutiaoz.top/categories/%E6%8A%98%E8%85%BE/"/>
+    
+    <category term="图床" scheme="https://shutiaoz.top/categories/%E6%8A%98%E8%85%BE/%E5%9B%BE%E5%BA%8A/"/>
+    
+    
+    <category term="Github" scheme="https://shutiaoz.top/tags/Github/"/>
+    
+    <category term="PicGo" scheme="https://shutiaoz.top/tags/PicGo/"/>
+    
+    <category term="工具" scheme="https://shutiaoz.top/tags/%E5%B7%A5%E5%85%B7/"/>
     
   </entry>
   
