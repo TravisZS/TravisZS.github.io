@@ -444,9 +444,9 @@ gitalk:
 # valine
 # https://valine.js.org
 valine:
-  appId: # leancloud application app id
-  appKey: # leancloud application app key
-  avatar: monsterid # gravatar style https://valine.js.org/#/avatar
+  appId: evegk0CevyTO1pq7HqGGTlYh-MdYXbMMI # leancloud application app id
+  appKey: nmbjNVKPvHK75tBrqVu9B2QE # leancloud application app key
+  avatar: A16qPMBADTfTcPIiMCQ9HOUy  # gravatar style https://valine.js.org/#/avatar
   serverURLs: # This configuration is suitable for domestic custom domain name users, overseas version will be automatically detected (no need to manually fill in)
   bg: # valine background
   visitor: false
@@ -455,7 +455,7 @@ valine:
 # waline - A simple comment system with backend support fork from Valine
 # https://waline.js.org/
 waline:
-  serverURL: https://waline-5tasauk94-2420206805z-gmailcom.vercel.app  # Waline server address url
+  serverURL: https://waline-git-main-2420206805z-gmailcom.vercel.app  # Waline server address url
   bg: # waline background
   pageview: false
   option:
