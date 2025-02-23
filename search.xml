@@ -13,20 +13,20 @@
       
       <categories>
           
-          <category> 折腾 </category>
+          <category> 开发工具 </category>
           
-          <category> 图床 </category>
+          <category> 云存储 </category>
           
       </categories>
       
       
         <tags>
             
-            <tag> 工具 </tag>
+            <tag> 工具链 </tag>
             
-            <tag> github </tag>
+            <tag> Github </tag>
             
-            <tag> cloudflare </tag>
+            <tag> Cloudflare </tag>
             
         </tags>
       
@@ -53,11 +53,11 @@
       
         <tags>
             
+            <tag> 工具链 </tag>
+            
             <tag> GitHub </tag>
             
             <tag> PicGo </tag>
-            
-            <tag> 工具链 </tag>
             
         </tags>
       
