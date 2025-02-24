@@ -110,6 +110,27 @@
 
   
   <url>
+    <loc>https://shutiaoz.top/tags/Markdown/</loc>
+    <lastmod>2025-02-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shutiaoz.top/tags/LaTeX/</loc>
+    <lastmod>2025-02-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shutiaoz.top/tags/%E6%95%B0%E5%AD%A6%E5%85%AC%E5%BC%8F/</loc>
+    <lastmod>2025-02-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://shutiaoz.top/tags/Linux/</loc>
     <lastmod>2025-02-24</lastmod>
     <changefreq>weekly</changefreq>
@@ -146,27 +167,6 @@
   
   <url>
     <loc>https://shutiaoz.top/tags/%E5%B7%A5%E5%85%B7%E9%93%BE/</loc>
-    <lastmod>2025-02-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://shutiaoz.top/tags/Markdown/</loc>
-    <lastmod>2025-02-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://shutiaoz.top/tags/LaTeX/</loc>
-    <lastmod>2025-02-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://shutiaoz.top/tags/%E6%95%B0%E5%AD%A6%E5%85%AC%E5%BC%8F/</loc>
     <lastmod>2025-02-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -217,7 +217,7 @@
   </url>
   
   <url>
-    <loc>https://shutiaoz.top/categories/%E6%8C%87%E5%8D%97/Linux/</loc>
+    <loc>https://shutiaoz.top/categories/%E6%8C%87%E5%8D%97/LaTeX/</loc>
     <lastmod>2025-02-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -231,14 +231,14 @@
   </url>
   
   <url>
-    <loc>https://shutiaoz.top/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/%E4%BA%91%E5%AD%98%E5%82%A8/</loc>
+    <loc>https://shutiaoz.top/categories/%E6%8C%87%E5%8D%97/Linux/</loc>
     <lastmod>2025-02-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shutiaoz.top/categories/%E6%8C%87%E5%8D%97/LaTeX/</loc>
+    <loc>https://shutiaoz.top/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/%E4%BA%91%E5%AD%98%E5%82%A8/</loc>
     <lastmod>2025-02-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
