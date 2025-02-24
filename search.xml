@@ -4,6 +4,35 @@
   
     
     <entry>
+      <title>Hexo设置百度主动推送</title>
+      <link href="/2025/02/24/Hexo%E8%AE%BE%E7%BD%AE%E7%99%BE%E5%BA%A6%E4%B8%BB%E5%8A%A8%E6%8E%A8%E9%80%81/"/>
+      <url>/2025/02/24/Hexo%E8%AE%BE%E7%BD%AE%E7%99%BE%E5%BA%A6%E4%B8%BB%E5%8A%A8%E6%8E%A8%E9%80%81/</url>
+      
+        <content type="html"><![CDATA[<h1>Hexo设置百度主动推送</h1><h2 id="前言">前言</h2><p>对于使用Hexo搭建的静态博客来说，让百度搜索引擎快速收录文章始终是个值得关注的问题。相比被动等待爬虫抓取，百度站长平台提供的主动推送接口能显著加快收录速度，提升SEO效果。然而Hexo默认并未集成这一功能，许多开发者在部署推送机制时常常会遇到：</p><h3 id="常见痛点">常见痛点</h3><ol><li><strong>链接维护低效</strong>：手动整理文章URL耗时易错</li><li><strong>接口调用限制</strong>：百度API的每日配额管理</li><li><strong>路径差异问题</strong>：本地调试与生产环境路径不一致</li></ol><p>本文将详细介绍如何通过自动化脚本+百度API的方式，实现Hexo博客的「发布即推送」功能。方案采用Node.js编写推送脚本，完美适配Hexo的生成部署流程，同时包含以下特色功能：</p><h3 id="方案优势">方案优势</h3><p>✅ 智能链接去重：自动过滤已推送记录<br>🚀 增量更新机制：仅处理最新变更<br>🌐 多环境适配：自动识别GitHub Pages/VPS等部署环境<br>🔄 失败重试策略：网络异常自动重试3次</p><h2 id="🛠-实现百度主动推送">🛠 实现百度主动推送</h2><div class="tabs"><div class="nav-tabs"><button type="button" class="tab">自动推送</button><button type="button" class="tab active">手动推送</button></div><div class="tab-contents"><div class="tab-item-content"><pre><code class="highlight mermaid">graph TD    A[Hexo生成静态文件] --&gt; B[提取新文章URL]    B --&gt; C&#123;是否生产环境?&#125;    C --&gt;|是| D[调用百度API推送]    C --&gt;|否| E[记录到本地文件]    D --&gt; F[返回推送结果]</code></pre><div class="note warning modern"><h4 id="⚠️-安全提示">⚠️ 安全提示</h4><ol><li>永远不要将<code>token</code>提交到公开仓库</li><li>建议将<code>_config.yml</code>添加到<code>.gitignore</code></li><li>使用环境变量存储敏感信息</li></ol></div></div><div class="tab-item-content active"><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 手动触发推送</span></span><br><span class="line">hexo deploy --generate</span><br></pre></td></tr></table></figure><div class="note info modern"><p>当需要立即推送时，可使用此命令强制触发推送流程</p></div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div><h3 id="步骤1：安装推送插件">步骤1：安装推送插件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-baidu-url-submit@2.0.3 --save</span><br></pre></td></tr></table></figure><div class="note success no-icon flat"><p>✔️ 版本锁定：2.0.3稳定版<br>✔️ 依赖检查：自动安装node-fetch和chalk</p></div><h3 id="步骤2：配置推送参数">步骤2：配置推送参数</h3><figure class="highlight yaml"><figcaption><span>_config.yml</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 百度主动推送配置</span></span><br><span class="line"><span class="attr">baidu_url_submit:</span></span><br><span class="line">  <span class="attr">count:</span> <span class="number">500</span> <span class="comment"># 最大推送数量</span></span><br><span class="line">  <span class="attr">host:</span> <span class="string">&quot;blog.yourdomain.com&quot;</span> <span class="comment"># 已验证的域名</span></span><br><span class="line">  <span class="attr">token:</span> <span class="string">&quot;your_secure_token&quot;</span> <span class="comment"># 站长平台获取</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">./baidu_urls.txt</span> <span class="comment"># 文本文档的地址， 新链接会保存在此文本文档里，这个默认</span></span><br></pre></td></tr></table></figure><p><strong>配置说明详解：</strong></p><p><img src="https://img.shutiaoz.top/blog/20250224203623.png" alt="百度推送Token获取"></p><ol><li>访问<a href="https://ziyuan.baidu.com">百度站长平台</a></li><li>导航至「普通收录」-&gt;「接口调用地址」</li><li>在接口地址中找到<code>token=</code>后的字符串</li><li>复制该token值到配置文件</li></ol><h3 id="步骤3：部署配置优化">步骤3：部署配置优化</h3><figure class="highlight yaml"><figcaption><span>_config.yml</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">type:</span> <span class="string">&#x27;git&#x27;</span></span><br><span class="line">    <span class="attr">repo:</span> <span class="string">git@github.com:xxx</span></span><br><span class="line">    <span class="attr">branch:</span> <span class="string">master</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">type:</span> <span class="string">baidu_url_submitter</span></span><br></pre></td></tr></table></figure><h3 id="步骤4：验证推送结果">步骤4：验证推送结果</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo clean &amp;&amp; hexo deploy --debug</span><br></pre></td></tr></table></figure><div class="note success modern"><p>✅ 成功输出示例：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">INFO  Deploying: baidu_url_submitter</span><br><span class="line">INFO  Submitting urls</span><br><span class="line">......</span><br><span class="line">&#123;&quot;remain&quot;:100,&quot;success&quot;:100&#125;</span><br><span class="line">INFO  Deploy done: baidu_url_submitter</span><br></pre></td></tr></table></figure><p><strong>后续验证步骤：</strong></p><ol><li>登录<a href="https://ziyuan.baidu.com">百度站长平台</a></li><li>进入「普通收录」-&gt;「提交记录」</li><li>查看「主动推送」标签页</li><li>确认最新推送时间和数量匹配</li></ol></div><div class="note danger modern"><p>❌ 失败处理建议：</p><ol><li>检查网络连接：<code>ping ziyuan.baidu.com</code></li><li>验证token有效性</li><li>使用<code>hexo --debug</code>模式排查</li><li>检查防火墙设置是否阻止API请求</li></ol></div><p><strong>主要参考：</strong></p><ul><li><a href="https://blog.laoda.de/archives/hexo-baidu-url-submit">《Hexo博客设置百度主动推送》</a></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> 指南，Hexo </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Hexo </tag>
+            
+            <tag> SEO </tag>
+            
+            <tag> 百度推送 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>核反应模拟程序LISE++与PACE4实战指南</title>
       <link href="/2024/10/24/%E6%A0%B8%E5%8F%8D%E5%BA%94%E6%A8%A1%E6%8B%9F%E7%A8%8B%E5%BA%8FLISE-PACE4%E6%8C%87%E5%8D%97/"/>
       <url>/2024/10/24/%E6%A0%B8%E5%8F%8D%E5%BA%94%E6%A8%A1%E6%8B%9F%E7%A8%8B%E5%BA%8FLISE-PACE4%E6%8C%87%E5%8D%97/</url>
