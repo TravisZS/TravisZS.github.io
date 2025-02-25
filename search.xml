@@ -4,6 +4,37 @@
   
     
     <entry>
+      <title>手把手教学：火山方舟免费获取DeepSeek-R1满血版API，实现本地对话+VSCode智能编程</title>
+      <link href="/posts/77d3a1c8/"/>
+      <url>/posts/77d3a1c8/</url>
+      
+        <content type="html"><![CDATA[<div class="note primary flat"><p><strong>限时福利</strong><br>火山引擎免费赠送50万tokens，邀请注册可额外获得15元代金券<br>① <a href="https://www.volcengine.com/experience/ark?utm_term=202502dsinvite&amp;ac=DSASUQY5&amp;rc=5R8SWK5U">立即注册</a><br>② 或使用邀请码：<code>5R8SWK5U</code></p></div><p>本文将详解如何通过火山方舟平台获取DeepSeek-R1满血版API密钥，并实现与VSCode的深度集成，打造智能编程环境。</p><h2 id="模型特性：DeepSeek-R1技术解析">模型特性：DeepSeek-R1技术解析</h2><div class="note success modern"><p><strong>量子代码引擎</strong>：采用稀疏注意力机制与动态专家路由技术，支持16K上下文窗口的代码语义理解，HumanEval测试集准确率89.7%，智能补全响应速度&lt;200ms</p></div><p>核心能力矩阵：</p><ul><li>🧩 <strong>多粒度理解</strong>：函数级补全 → 模块级重构 → 项目级架构设计</li><li>⚡ <strong>极速响应</strong>：单卡QPS 58次/秒，万行代码分析仅需4.9秒</li><li>🔄 <strong>持续进化</strong>：周级迭代训练，准确率月提升1.2%</li></ul><hr><h2 id="获取DeepSeek-R1-满血版API">获取DeepSeek-R1 满血版API</h2><h3 id="1：进入火山引擎">1：进入火山引擎</h3><ol><li>访问<a href="https://www.volcengine.com/experience/ark?utm_term=202502dsinvite&amp;ac=DSASUQY5&amp;rc=5R8SWK5U">火山引擎官网</a>,选择火山方舟进入<br><img src="https://img.shutiaoz.top/blog/20250225153446.png" alt="官网首页"></li><li>在「API构建应用」板块点击&quot;立即使用&quot;<br><img src="https://img.shutiaoz.top/blog/20250225154206.png" alt="API入口"></li></ol><hr><h3 id="2：创建接入点">2：创建接入点</h3><ol><li>点击「创建推理接入点」<br><img src="https://img.shutiaoz.top/blog/20250225154342.png" alt="创建接入点"></li><li>填写接入点名称（示例：<code>deepseek-prod</code>）<br><img src="https://img.shutiaoz.top/blog/20250225154433.png" alt="名称示例"></li><li>选择模型时<strong>务必勾选DeepSeek-R1</strong>，避免下面的蒸馏版本<br><img src="https://img.shutiaoz.top/blog/20250225154606.png" alt="模型选择"></li></ol><p>模型选择后会提示&quot;该模型未开通，开通后可创建推理接入点&quot;，点击立即开通：<br><img src="https://img.shutiaoz.top/blog/20250225154801.png" alt="模型提示"></p><hr><h3 id="3：实名认证">3：实名认证</h3><ol><li>根据提示完成实名认证（支持个人/企业两种方式）<br><img src="https://img.shutiaoz.top/blog/20250225155019.png" alt="认证选项"></li><li>认证成功后返回开通Deepseek-R1模型服务<br><img src="https://img.shutiaoz.top/blog/20250225155413.png" alt="服务开通"></li><li>返回接入点页面点击确认接入<br><img src="https://img.shutiaoz.top/blog/20250225155654.png" alt="接入模型"></li></ol><hr><h3 id="4：获取凭证">4：获取凭证</h3><ol><li>记录模型控制台的<code>模型ID</code> ，<strong>保存备用</strong><br><img src="https://img.shutiaoz.top/blog/20250225160015.png" alt="模型ID位置"></li><li>在「访问密钥」页面获取<code>API Key</code> ，<strong>保存备用</strong><br><img src="https://img.shutiaoz.top/blog/20250225160223.png" alt="密钥管理"></li></ol><hr><h2 id="CherryStudio客户端配置">CherryStudio客户端配置</h2><ol><li><p><strong>客户端安装</strong><br>访问<a href="https://cherry-ai.com">CherryStudio官网</a>下载对应系统版本的客户端（Windows/macOS/Linux），国内用户建议使用备用下载线路</p></li><li><p><strong>参数配置</strong><br>打开客户端设置界面，依次配置以下参数：</p><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># API接入配置</span></span><br><span class="line"><span class="attr">api_endpoint:</span> <span class="string">https://ark.cn-beijing.volces.com/api/v3/</span>  <span class="comment"># 服务地址</span></span><br><span class="line"><span class="attr">api_key:</span> <span class="string">sk-xxxxxxxxxxxxxxxxxxxxxxxx</span>  <span class="comment"># 控制台获取的密钥</span></span><br><span class="line"><span class="attr">model_id:</span> <span class="string">ep-xxxxxxxx</span>  <span class="comment"># 模型控制台显示的ID</span></span><br></pre></td></tr></table></figure><p><img src="https://img.shutiaoz.top/blog/20250225162319.png" alt="参数配置界面"><br><img src="https://img.shutiaoz.top/blog/20250225162531.png" alt="模型ID位置"></p></li><li><p><strong>连接验证</strong></p><ol><li>点击&quot;检查连接&quot;按钮测试API连通性</li><li>在模型选择下拉菜单中切换至配置的DeepSeek-R1模型</li><li>通过简单对话验证服务可用性<br><img src="https://img.shutiaoz.top/blog/20250225162909.png" alt="连接状态验证"></li></ol></li></ol><hr><h2 id="VSCode深度集成">VSCode深度集成</h2><h3 id="Cline插件部署">Cline插件部署</h3><div class="tabs"><div class="nav-tabs"><button type="button" class="tab active">安装流程</button><button type="button" class="tab">配置说明</button></div><div class="tab-contents"><div class="tab-item-content active"><ol><li>打开VSCode扩展市场 (Ctrl+Shift+X)</li><li>搜索「Cline - AI Code Assistant」</li><li>点击安装按钮（建议选择第一个官方版）<br><img src="https://img.shutiaoz.top/blog/20250225174721.png" alt="插件安装界面"></li></ol></div><div class="tab-item-content"><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># config.yml</span></span><br><span class="line"><span class="attr">openai:</span></span><br><span class="line">  <span class="attr">base_url:</span> <span class="string">https://ark.cn-beijing.volces.com/api/v3/</span></span><br><span class="line">  <span class="attr">api_key:</span> <span class="string">sk-xxxxxxxxxxxxxxxxxxxxxxxx</span>  <span class="comment"># 火山方舟API Key</span></span><br><span class="line">  <span class="attr">model:</span> <span class="string">ep-xxxxxxxx</span>  <span class="comment"># 模型接入点ID</span></span><br></pre></td></tr></table></figure><p><img src="https://img.shutiaoz.top/blog/20250225175213.png" alt="配置界面示例"></p><div class="note warning flat"><p>务必选择<code>OpenAI Compatible</code>作为服务提供商，否则无法正确识别火山引擎接口</p></div></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>]]></content>
+      
+      
+      <categories>
+          
+          <category> 开发工具 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 火山引擎 </tag>
+            
+            <tag> DeepSeek </tag>
+            
+            <tag> VSCode </tag>
+            
+            <tag> AI </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Hexo中文URL优化指南：使用abbrlink插件实现永久链接标准化</title>
       <link href="/posts/fb5cc005/"/>
       <url>/posts/fb5cc005/</url>
