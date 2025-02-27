@@ -167,27 +167,6 @@
   </url>
   
   <url>
-    <loc>https://shutiaoz.top/tags/Hexo/</loc>
-    <lastmod>2025-02-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://shutiaoz.top/tags/SEO/</loc>
-    <lastmod>2025-02-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://shutiaoz.top/tags/%E7%99%BE%E5%BA%A6%E6%8E%A8%E9%80%81/</loc>
-    <lastmod>2025-02-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://shutiaoz.top/tags/Linux/</loc>
     <lastmod>2025-02-27</lastmod>
     <changefreq>weekly</changefreq>
@@ -203,6 +182,27 @@
   
   <url>
     <loc>https://shutiaoz.top/tags/%E5%91%BD%E4%BB%A4%E8%A1%8C/</loc>
+    <lastmod>2025-02-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shutiaoz.top/tags/Hexo/</loc>
+    <lastmod>2025-02-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shutiaoz.top/tags/SEO/</loc>
+    <lastmod>2025-02-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shutiaoz.top/tags/%E7%99%BE%E5%BA%A6%E6%8E%A8%E9%80%81/</loc>
     <lastmod>2025-02-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -337,14 +337,14 @@
   </url>
   
   <url>
-    <loc>https://shutiaoz.top/categories/%E6%A0%B8%E7%89%A9%E7%90%86/</loc>
+    <loc>https://shutiaoz.top/categories/%E6%8C%87%E5%8D%97/Linux/</loc>
     <lastmod>2025-02-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://shutiaoz.top/categories/%E6%8C%87%E5%8D%97/Linux/</loc>
+    <loc>https://shutiaoz.top/categories/%E6%A0%B8%E7%89%A9%E7%90%86/</loc>
     <lastmod>2025-02-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
