@@ -258,27 +258,6 @@
   </url>
   
   <url>
-    <loc>https://shutiaoz.top/tags/%E6%A0%B8%E7%89%A9%E7%90%86/</loc>
-    <lastmod>2025-02-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://shutiaoz.top/tags/%E6%A8%A1%E6%8B%9F%E5%B7%A5%E5%85%B7/</loc>
-    <lastmod>2025-02-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://shutiaoz.top/tags/%E5%AE%9E%E9%AA%8C%E8%AE%BE%E8%AE%A1/</loc>
-    <lastmod>2025-02-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://shutiaoz.top/tags/%E7%81%AB%E5%B1%B1%E5%BC%95%E6%93%8E/</loc>
     <lastmod>2025-02-27</lastmod>
     <changefreq>weekly</changefreq>
@@ -301,6 +280,27 @@
   
   <url>
     <loc>https://shutiaoz.top/tags/AI/</loc>
+    <lastmod>2025-02-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shutiaoz.top/tags/%E6%A0%B8%E7%89%A9%E7%90%86/</loc>
+    <lastmod>2025-02-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shutiaoz.top/tags/%E6%A8%A1%E6%8B%9F%E5%B7%A5%E5%85%B7/</loc>
+    <lastmod>2025-02-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shutiaoz.top/tags/%E5%AE%9E%E9%AA%8C%E8%AE%BE%E8%AE%A1/</loc>
     <lastmod>2025-02-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -337,13 +337,6 @@
   </url>
   
   <url>
-    <loc>https://shutiaoz.top/categories/%E6%A0%B8%E7%89%A9%E7%90%86/</loc>
-    <lastmod>2025-02-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://shutiaoz.top/categories/%E6%8C%87%E5%8D%97/Linux/</loc>
     <lastmod>2025-02-27</lastmod>
     <changefreq>weekly</changefreq>
@@ -352,6 +345,13 @@
   
   <url>
     <loc>https://shutiaoz.top/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/%E4%BA%91%E5%AD%98%E5%82%A8/</loc>
+    <lastmod>2025-02-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://shutiaoz.top/categories/%E6%A0%B8%E7%89%A9%E7%90%86/</loc>
     <lastmod>2025-02-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
