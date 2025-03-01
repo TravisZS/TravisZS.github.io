@@ -1,0 +1,9 @@
+/* 欢迎信息 */
+#welcome-242029z {
+    background: linear-gradient(45deg, #eaf2f2, #dff1ef);
+    border-radius: 18px;
+    padding: 8px;
+}
+[data-theme="dark"] #welcome-info {
+    background: #212121;
+}
