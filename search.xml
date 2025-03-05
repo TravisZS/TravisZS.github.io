@@ -4,6 +4,37 @@
   
     
     <entry>
+      <title>Talys安装使用简单介绍</title>
+      <link href="/posts/4e0a325f/"/>
+      <url>/posts/4e0a325f/</url>
+      
+        <content type="html"><![CDATA[<h2 id="安装">安装</h2><p>Talys是一个用于核反应计算的软件，主要用于计算核反应的截面、能量分布等。以下是安装步骤：</p><blockquote><p><strong>提示</strong>：国内用户建议使用VPN加速下载。Talys仅支持Linux系统，建议安装双系统或使用WSL（Windows Subsystem for Linux），WSL2已经非常完善。</p></blockquote><ol><li><strong>下载Talys</strong>：访问<a href="https://nds.iaea.org/talys/">Talys官网</a>，下载最新版本的<code>talys.tar</code>。</li><li><strong>解压文件</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -xvf talys.tar</span><br></pre></td></tr></table></figure></li><li><strong>进入目录</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> talys</span><br></pre></td></tr></table></figure></li><li><strong>阅读安装说明</strong>：查看<code>README.md</code>文件，了解详细的安装步骤。</li></ol><blockquote><p><strong>注意</strong>：安装前请确保系统中已安装<code>gfortran</code>编译器。若未安装，请使用以下命令安装：</p></blockquote><ul><li><strong>Ubuntu</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get install gfortran</span><br></pre></td></tr></table></figure></li><li><strong>CentOS</strong>：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> yum install gfortran</span><br></pre></td></tr></table></figure></li></ul><ol start="5"><li><p><strong>编译Talys</strong>：推荐使用<code>code_build</code>脚本进行编译：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./code_build talys</span><br></pre></td></tr></table></figure></li><li><p><strong>配置环境变量</strong>：</p><ul><li>打开Shell配置文件（对于Ubuntu系统通常是<code>~/.bashrc</code>）：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nano ~/.bashrc</span><br></pre></td></tr></table></figure></li><li>在文件末尾添加以下两行（请替换为实际路径）：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> TALYSLIB=/home/altail/talys/lib</span><br><span class="line"><span class="built_in">export</span> TALYSBIN=/home/altail/talys/bin</span><br></pre></td></tr></table></figure></li><li>保存并退出：按<code>Ctrl + X</code>，然后按<code>Y</code>确认保存，最后按<code>Enter</code>。</li><li>重新加载Shell配置：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> ~/.bashrc</span><br></pre></td></tr></table></figure></li><li>验证环境变量：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$TALYSLIB</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$TALYSBIN</span></span><br></pre></td></tr></table></figure></li></ul><p>如果配置成功，会显示Talys的安装路径。</p></li></ol><h2 id="使用">使用</h2><h3 id="基本输入">基本输入</h3><p>在目标文件夹下创建一个<code>input.inp</code>文件，包含以下关键字内容：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">projectile n <span class="comment"># 入射粒子类型，可选n, p, d, t, h, a, g或0</span></span><br><span class="line">element Y <span class="comment"># 靶核元素</span></span><br><span class="line">mass 89 <span class="comment"># 靶核质量数</span></span><br><span class="line">energy 5 <span class="comment"># 入射能量，单位为MeV</span></span><br><span class="line"><span class="comment"># 能量可以为单值或范围，例如1 5 2表示1-5MeV，步长为2MeV</span></span><br><span class="line"><span class="comment"># 能量也可以单独写入文件</span></span><br><span class="line">energy energies <span class="comment"># 能量文件名</span></span><br><span class="line"><span class="comment"># energies文件中每一行表示一个能量值</span></span><br><span class="line">Ltarget 1 <span class="comment"># 靶核的激发能级</span></span><br><span class="line">isomer 1  <span class="comment"># 是否考虑同质异能态，输入靶核的同质异能态的半衰期，默认为1秒</span></span><br><span class="line">outbasic y <span class="comment"># 是否使用基本输出</span></span><br></pre></td></tr></table></figure><h3 id="运行Talys">运行Talys</h3><p>在目标文件夹下运行以下命令：</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">talys &lt; input.inp &gt; out</span><br></pre></td></tr></table></figure><h3 id="基本输出">基本输出</h3><p>主要输出文件包括：</p><ul><li><code>na.L02</code>：入射粒子为n，出射粒子为a，靶核激发能级为L02的截面文件</li><li><code>ng.L07</code>：入射粒子为n，出射粒子为g，靶核激发能级为L07的截面文件</li><li><code>rp037086.L00</code>：Z=37, A=86, 核激发能级为L00的截面文件</li><li><code>rp037086.tot</code>：Z=37, A=86, 总截面文件</li><li><code>out</code>：总输出文件，包含以上所有结果</li></ul><p>要充分利用Talys，建议详细阅读Talys手册，了解更多参数设置。更多信息请参考<a href="https://nds.iaea.org/talys/">TALYS官网</a>。</p><h2 id="参考文献">参考文献</h2><ul><li>Koning A, Hilaire S, Goriely S. TALYS: modeling of nuclear reactions[J]. The European Physical Journal A, 2023, 59(6): 131.</li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> 模拟工具 </category>
+          
+          <category> 核物理 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 核物理 </tag>
+            
+            <tag> 科学计算 </tag>
+            
+            <tag> 软件安装 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Hexo全自动搜索引擎推送指南 - 百度/谷歌/必应收录加速方案</title>
       <link href="/posts/a32b64d0/"/>
       <url>/posts/a32b64d0/</url>
