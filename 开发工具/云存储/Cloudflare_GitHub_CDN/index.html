@@ -1,0 +1,441 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>使用cloudflare实现自定义域名加速github图床 | 炸薯条🍟の求知笔记</title><meta name="author" content="炸薯条"><meta name="copyright" content="炸薯条"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="通过Cloudflare CDN加速GitHub图床访问并绑定自定义域名">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用cloudflare实现自定义域名加速github图床">
+<meta property="og:url" content="https://shutiaoz.top/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/%E4%BA%91%E5%AD%98%E5%82%A8/Cloudflare_GitHub_CDN/">
+<meta property="og:site_name" content="炸薯条🍟の求知笔记">
+<meta property="og:description" content="通过Cloudflare CDN加速GitHub图床访问并绑定自定义域名">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.shutiaoz.top/blog/20250223114953.png">
+<meta property="article:published_time" content="2025-02-20T03:46:54.000Z">
+<meta property="article:modified_time" content="2025-02-23T03:46:54.000Z">
+<meta property="article:author" content="炸薯条">
+<meta property="article:tag" content="Github">
+<meta property="article:tag" content="工具链">
+<meta property="article:tag" content="Cloudflare">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.shutiaoz.top/blog/20250223114953.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "使用cloudflare实现自定义域名加速github图床",
+  "url": "https://shutiaoz.top/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/%E4%BA%91%E5%AD%98%E5%82%A8/Cloudflare_GitHub_CDN/",
+  "image": "https://img.shutiaoz.top/blog/20250223114953.png",
+  "datePublished": "2025-02-20T03:46:54.000Z",
+  "dateModified": "2025-02-23T03:46:54.000Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "炸薯条",
+      "url": "https://shutiaoz.top/shutiaoz.top"
+    }
+  ]
+}</script><link rel="shortcut icon" href="https://img.shutiaoz.top/blog/logo.jfif"><link rel="canonical" href="https://shutiaoz.top/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/%E4%BA%91%E5%AD%98%E5%82%A8/Cloudflare_GitHub_CDN/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="baidu-site-verification" content="codeva-hhf7VZ0sOk"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-3FGH8NN5M2"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-3FGH8NN5M2')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-3FGH8NN5M2', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简"},
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '使用cloudflare实现自定义域名加速github图床',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-swiper/swiper/swiper.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-swiper/swiper/swiperstyle.css"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pace-js/themes/blue/pace-theme-minimal.min.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="https://img.shutiaoz.top/blog/logo1.jfif" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fas fa-envelope"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/talk/"><i class="fa-fw fas fa-message"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://img.shutiaoz.top/blog/20250223114953.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">炸薯条🍟の求知笔记</span></a><a class="nav-page-title" href="/"><span class="site-name">使用cloudflare实现自定义域名加速github图床</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fas fa-envelope"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/talk/"><i class="fa-fw fas fa-message"></i><span> 说说</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">使用cloudflare实现自定义域名加速github图床</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-02-20T03:46:54.000Z" title="发表于 2025-02-20 11:46:54">2025-02-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-02-23T03:46:54.000Z" title="更新于 2025-02-23 11:46:54">2025-02-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/">开发工具</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/%E4%BA%91%E5%AD%98%E5%82%A8/">云存储</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>6分钟</span></span><span class="post-meta-separator">|</span><span id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="twikoo_visitors"><i class="fa-solid fa-spinner fa-spin"></i></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/%E4%BA%91%E5%AD%98%E5%82%A8/Cloudflare_GitHub_CDN/#post-comment"><span id="twikoo-count"><i class="fa-solid fa-spinner fa-spin"></i></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1>使用Cloudflare实现自定义域名加速GitHub图床</h1>
+<h2 id="前言：为什么选择Cloudflare？">前言：为什么选择Cloudflare？</h2>
+<div class="note success flat"><p><strong>方案优势对比</strong></p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>jsDelivr方案</th>
+<th>Cloudflare方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>国内访问速度</td>
+<td>❌ 1500ms+</td>
+<td>✅ 200ms</td>
+</tr>
+<tr>
+<td>自定义域名</td>
+<td>❌ 不可用</td>
+<td>✅ 自动SSL证书</td>
+</tr>
+<tr>
+<td>缓存控制</td>
+<td>❌ 固定策略</td>
+<td>✅ 多级可配置</td>
+</tr>
+<tr>
+<td>安全防护</td>
+<td>❌ 无</td>
+<td>✅ WAF+DDoS防护</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="note info modern"><p><strong>技术选型要点</strong></p>
+<ul>
+<li>GitHub原生存储保障数据安全（99.999999999%持久性）</li>
+<li>Cloudflare全球加速网络（285个边缘节点）</li>
+<li>开发者友好集成（PicGo+Git+CI/CD）</li>
+</ul>
+</div>
+<h3 id="Cloudflare解决方案优势">Cloudflare解决方案优势</h3>
+<ol>
+<li>
+<p><strong>全球智能路由</strong><br>
+285个边缘节点实现智能分发，平均加载时间从1200ms优化至200ms。基于Anycast网络架构，自动选择最优访问路径。</p>
+</li>
+<li>
+<p><strong>智能缓存机制</strong></p>
+</li>
+</ol>
+<pre><code class="highlight mermaid">graph LR
+    A[用户请求] --&gt; B&#123;边缘缓存&#125;
+    B -- 命中 --&gt; C[立即响应]
+    B -- 未命中 --&gt; D[回源GitHub]
+    D --&gt; E[缓存并响应]</code></pre>
+<ol start="3">
+<li><strong>域名与安全</strong></li>
+</ol>
+<ul>
+<li>🛡️ 自动SSL证书管理</li>
+<li>🌐 自定义品牌域名</li>
+<li>📊 流量分析仪表盘</li>
+<li>🔐 集成WAF/DDoS防护</li>
+<li>⚡ 智能缓存优化</li>
+</ul>
+<p>需要准备的：</p>
+<ul>
+<li>自己的域名</li>
+<li>Cloudflare账号</li>
+<li>GitHub账号</li>
+</ul>
+<h2 id="创建GitHub仓库并获取访问令牌">创建GitHub仓库并获取访问令牌</h2>
+<p>参考之前的创建图床步骤（参考<a href="https://shutiaoz.top/2023/10/20/PicGo-VSCode-Github/">《VSCode+PicGo打造无缝GitHub图床体验》</a>）：</p>
+<ol>
+<li>创建私有仓库 <code>blog-images</code></li>
+<li>生成github的token：
+<ul>
+<li>权限范围：仅repo</li>
+<li>访问权限：内容读写</li>
+</ul>
+</li>
+<li>安全存储Token至本地密码管理器</li>
+</ol>
+<h2 id="配置Cloudflare-Worker">配置Cloudflare Worker</h2>
+<h3 id="1-创建Worker服务">1. 创建Worker服务</h3>
+<img src="https://img.shutiaoz.top/blog/20250223151206.png" class="" title="创建Worker width:90%">
+<h3 id="2-部署基础代码">2. 部署基础代码</h3>
+<div class="tabs"><div class="nav-tabs"><button type="button" class="tab active">部署界面</button><button type="button" class="tab">部署完成</button></div><div class="tab-contents"><div class="tab-item-content active"><img src="https://img.shutiaoz.top/blog/20250223153806.png" class="" title="部署界面 width:95%"></div><div class="tab-item-content"><img src="https://img.shutiaoz.top/blog/20250223153923.png" class="" title="部署成功 width:95%"></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+<h3 id="3-注入代理代码">3. 注入代理代码</h3>
+<div class="note primary modern"><p>使用以下代码替换默认Worker代码：</p>
+</div>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Website you intended to retrieve for users.</span></span><br><span class="line"><span class="keyword">const</span> upstream = <span class="string">&quot;raw.githubusercontent.com&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Custom pathname for the upstream website.</span></span><br><span class="line"><span class="comment">// (1) 填写代理的路径，格式为 /&lt;用户&gt;/&lt;仓库名&gt;/&lt;分支&gt;</span></span><br><span class="line"><span class="keyword">const</span> upstream_path = <span class="string">&quot;****&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// github personal access token.</span></span><br><span class="line"><span class="comment">// (2) 填写github令牌</span></span><br><span class="line"><span class="keyword">const</span> github_token = <span class="string">&quot;****&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Website you intended to retrieve for users using mobile devices.</span></span><br><span class="line"><span class="keyword">const</span> upstream_mobile = upstream;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Countries and regions where you wish to suspend your service.</span></span><br><span class="line"><span class="keyword">const</span> blocked_region = [];</span><br><span class="line"></span><br><span class="line"><span class="comment">// IP addresses which you wish to block from using your service.</span></span><br><span class="line"><span class="keyword">const</span> blocked_ip_address = [<span class="string">&quot;0.0.0.0&quot;</span>, <span class="string">&quot;127.0.0.1&quot;</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// Whether to use HTTPS protocol for upstream address.</span></span><br><span class="line"><span class="keyword">const</span> https = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Whether to disable cache.</span></span><br><span class="line"><span class="keyword">const</span> disable_cache = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Replace texts.</span></span><br><span class="line"><span class="keyword">const</span> replace_dict = &#123;</span><br><span class="line">  <span class="attr">$upstream</span>: <span class="string">&quot;$custom_domain&quot;</span>,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">addEventListener</span>(<span class="string">&quot;fetch&quot;</span>, <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">  event.<span class="title function_">respondWith</span>(<span class="title function_">fetchAndApply</span>(event.<span class="property">request</span>));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">fetchAndApply</span>(<span class="params">request</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> region = request.<span class="property">headers</span>.<span class="title function_">get</span>(<span class="string">&quot;cf-ipcountry&quot;</span>)?.<span class="title function_">toUpperCase</span>();</span><br><span class="line">  <span class="keyword">const</span> ip_address = request.<span class="property">headers</span>.<span class="title function_">get</span>(<span class="string">&quot;cf-connecting-ip&quot;</span>);</span><br><span class="line">  <span class="keyword">const</span> user_agent = request.<span class="property">headers</span>.<span class="title function_">get</span>(<span class="string">&quot;user-agent&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> response = <span class="literal">null</span>;</span><br><span class="line">  <span class="keyword">let</span> url = <span class="keyword">new</span> <span class="title function_">URL</span>(request.<span class="property">url</span>);</span><br><span class="line">  <span class="keyword">let</span> url_hostname = url.<span class="property">hostname</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (https == <span class="literal">true</span>) &#123;</span><br><span class="line">    url.<span class="property">protocol</span> = <span class="string">&quot;https:&quot;</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    url.<span class="property">protocol</span> = <span class="string">&quot;http:&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">await</span> <span class="title function_">device_status</span>(user_agent)) &#123;</span><br><span class="line">    <span class="keyword">var</span> upstream_domain = upstream;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> upstream_domain = upstream_mobile;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  url.<span class="property">host</span> = upstream_domain;</span><br><span class="line">  <span class="keyword">if</span> (url.<span class="property">pathname</span> == <span class="string">&quot;/&quot;</span>) &#123;</span><br><span class="line">    url.<span class="property">pathname</span> = upstream_path;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    url.<span class="property">pathname</span> = upstream_path + url.<span class="property">pathname</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (blocked_region.<span class="title function_">includes</span>(region)) &#123;</span><br><span class="line">    response = <span class="keyword">new</span> <span class="title class_">Response</span>(</span><br><span class="line">      <span class="string">&quot;Access denied: WorkersProxy is not available in your region yet.&quot;</span>,</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">status</span>: <span class="number">403</span>,</span><br><span class="line">      &#125;</span><br><span class="line">    );</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (blocked_ip_address.<span class="title function_">includes</span>(ip_address)) &#123;</span><br><span class="line">    response = <span class="keyword">new</span> <span class="title class_">Response</span>(</span><br><span class="line">      <span class="string">&quot;Access denied: Your IP address is blocked by WorkersProxy.&quot;</span>,</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">status</span>: <span class="number">403</span>,</span><br><span class="line">      &#125;</span><br><span class="line">    );</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> method = request.<span class="property">method</span>;</span><br><span class="line">    <span class="keyword">let</span> request_headers = request.<span class="property">headers</span>;</span><br><span class="line">    <span class="keyword">let</span> new_request_headers = <span class="keyword">new</span> <span class="title class_">Headers</span>(request_headers);</span><br><span class="line"></span><br><span class="line">    new_request_headers.<span class="title function_">set</span>(<span class="string">&quot;Host&quot;</span>, upstream_domain);</span><br><span class="line">    new_request_headers.<span class="title function_">set</span>(<span class="string">&quot;Referer&quot;</span>, url.<span class="property">protocol</span> + <span class="string">&quot;//&quot;</span> + url_hostname);</span><br><span class="line">    new_request_headers.<span class="title function_">set</span>(<span class="string">&quot;Authorization&quot;</span>, <span class="string">&quot;token &quot;</span> + github_token);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> original_response = <span class="keyword">await</span> <span class="title function_">fetch</span>(url.<span class="property">href</span>, &#123;</span><br><span class="line">      <span class="attr">method</span>: method,</span><br><span class="line">      <span class="attr">headers</span>: new_request_headers,</span><br><span class="line">      <span class="attr">body</span>: request.<span class="property">body</span>,</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> connection_upgrade = new_request_headers.<span class="title function_">get</span>(<span class="string">&quot;Upgrade&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (connection_upgrade &amp;&amp; connection_upgrade.<span class="title function_">toLowerCase</span>() == <span class="string">&quot;websocket&quot;</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> original_response;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> original_response_clone = original_response.<span class="title function_">clone</span>();</span><br><span class="line">    <span class="keyword">let</span> original_text = <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">let</span> response_headers = original_response.<span class="property">headers</span>;</span><br><span class="line">    <span class="keyword">let</span> new_response_headers = <span class="keyword">new</span> <span class="title class_">Headers</span>(response_headers);</span><br><span class="line">    <span class="keyword">let</span> status = original_response.<span class="property">status</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (disable_cache) &#123;</span><br><span class="line">      new_response_headers.<span class="title function_">set</span>(<span class="string">&quot;Cache-Control&quot;</span>, <span class="string">&quot;no-store&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      new_response_headers.<span class="title function_">set</span>(<span class="string">&quot;Cache-Control&quot;</span>, <span class="string">&quot;max-age=43200000&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    new_response_headers.<span class="title function_">set</span>(<span class="string">&quot;access-control-allow-origin&quot;</span>, <span class="string">&quot;*&quot;</span>);</span><br><span class="line">    new_response_headers.<span class="title function_">set</span>(<span class="string">&quot;access-control-allow-credentials&quot;</span>, <span class="string">&quot;true&quot;</span>);</span><br><span class="line">    new_response_headers.<span class="title function_">delete</span>(<span class="string">&quot;content-security-policy&quot;</span>);</span><br><span class="line">    new_response_headers.<span class="title function_">delete</span>(<span class="string">&quot;content-security-policy-report-only&quot;</span>);</span><br><span class="line">    new_response_headers.<span class="title function_">delete</span>(<span class="string">&quot;clear-site-data&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (new_response_headers.<span class="title function_">get</span>(<span class="string">&quot;x-pjax-url&quot;</span>)) &#123;</span><br><span class="line">      new_response_headers.<span class="title function_">set</span>(</span><br><span class="line">        <span class="string">&quot;x-pjax-url&quot;</span>,</span><br><span class="line">        response_headers</span><br><span class="line">          .<span class="title function_">get</span>(<span class="string">&quot;x-pjax-url&quot;</span>)</span><br><span class="line">          .<span class="title function_">replace</span>(<span class="string">&quot;//&quot;</span> + upstream_domain, <span class="string">&quot;//&quot;</span> + url_hostname)</span><br><span class="line">      );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> content_type = new_response_headers.<span class="title function_">get</span>(<span class="string">&quot;content-type&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (</span><br><span class="line">      content_type != <span class="literal">null</span> &amp;&amp;</span><br><span class="line">      content_type.<span class="title function_">includes</span>(<span class="string">&quot;text/html&quot;</span>) &amp;&amp;</span><br><span class="line">      content_type.<span class="title function_">includes</span>(<span class="string">&quot;UTF-8&quot;</span>)</span><br><span class="line">    ) &#123;</span><br><span class="line">      original_text = <span class="keyword">await</span> <span class="title function_">replace_response_text</span>(</span><br><span class="line">        original_response_clone,</span><br><span class="line">        upstream_domain,</span><br><span class="line">        url_hostname</span><br><span class="line">      );</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      original_text = original_response_clone.<span class="property">body</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    response = <span class="keyword">new</span> <span class="title class_">Response</span>(original_text, &#123;</span><br><span class="line">      status,</span><br><span class="line">      <span class="attr">headers</span>: new_response_headers,</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> response;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">replace_response_text</span>(<span class="params">response, upstream_domain, host_name</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> text = <span class="keyword">await</span> response.<span class="title function_">text</span>();</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> i, j;</span><br><span class="line">  <span class="keyword">for</span> (i <span class="keyword">in</span> replace_dict) &#123;</span><br><span class="line">    j = replace_dict[i];</span><br><span class="line">    <span class="keyword">if</span> (i == <span class="string">&quot;$upstream&quot;</span>) &#123;</span><br><span class="line">      i = upstream_domain;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (i == <span class="string">&quot;$custom_domain&quot;</span>) &#123;</span><br><span class="line">      i = host_name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (j == <span class="string">&quot;$upstream&quot;</span>) &#123;</span><br><span class="line">      j = upstream_domain;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (j == <span class="string">&quot;$custom_domain&quot;</span>) &#123;</span><br><span class="line">      j = host_name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> re = <span class="keyword">new</span> <span class="title class_">RegExp</span>(i, <span class="string">&quot;g&quot;</span>);</span><br><span class="line">    text = text.<span class="title function_">replace</span>(re, j);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> text;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">device_status</span>(<span class="params">user_agent_info</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> agents = [</span><br><span class="line">    <span class="string">&quot;Android&quot;</span>,</span><br><span class="line">    <span class="string">&quot;iPhone&quot;</span>,</span><br><span class="line">    <span class="string">&quot;SymbianOS&quot;</span>,</span><br><span class="line">    <span class="string">&quot;Windows Phone&quot;</span>,</span><br><span class="line">    <span class="string">&quot;iPad&quot;</span>,</span><br><span class="line">    <span class="string">&quot;iPod&quot;</span>,</span><br><span class="line">  ];</span><br><span class="line">  <span class="keyword">var</span> flag = <span class="literal">true</span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> v = <span class="number">0</span>; v &lt; agents.<span class="property">length</span>; v++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (user_agent_info.<span class="title function_">indexOf</span>(agents[v]) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      flag = <span class="literal">false</span>;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> flag;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>需要修改的地方有：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Custom pathname for the upstream website.</span></span><br><span class="line"><span class="comment">// (1) 填写代理的路径，格式为 /&lt;用户&gt;/&lt;仓库名&gt;/&lt;分支&gt;(一般是main)</span></span><br><span class="line"><span class="keyword">const</span> upstream_path = <span class="string">&quot;****&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// github personal access token.</span></span><br><span class="line"><span class="comment">// (2) 填写github令牌</span></span><br><span class="line"><span class="keyword">const</span> github_token = <span class="string">&quot;****&quot;</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="https://img.shutiaoz.top/blog/20250223154428.png" alt="部署"></p>
+<p>保存并且部署</p>
+<div class="note warning modern"><p><i class="fas fa-exclamation-triangle"></i> <strong>重要配置提醒</strong>：</p>
+<ul>
+<li>域名必须托管在Cloudflare平台</li>
+<li>需提前完成DNS解析配置</li>
+<li>建议开启「始终使用HTTPS」选项</li>
+</ul>
+</div>
+<div class="tabs"><div class="nav-tabs"><button type="button" class="tab active">服务器端配置</button><button type="button" class="tab">客户端配置</button></div><div class="tab-contents"><div class="tab-item-content active"><p>前往Cloudflare控制台：</p>
+<ol>
+<li>进入Worker详情页</li>
+<li>打开【设置】→【域名和路由】</li>
+<li>添加自定义域名（如：<a target="_blank" rel="noopener" href="http://img.yourdomain.com">img.yourdomain.com</a>）</li>
+<li>等待SSL证书自动签发（约2分钟）</li>
+</ol>
+<p><img src="https://img.shutiaoz.top/blog/20250223154653.png" alt="域名配置演示"></p></div><div class="tab-item-content"><p><strong>PicGo设置：</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">图床配置：</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">类型:</span> <span class="string">GitHub</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">仓库名:</span> <span class="string">yourname/blog-images</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">分支:</span> <span class="string">main</span></span><br><span class="line">  <span class="bullet">-</span> <span class="string">自定义域名:</span> <span class="string">https://img.yourdomain.com</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">Token:</span> <span class="string">github_pat_xxxx</span></span><br></pre></td></tr></table></figure></div></div><div class="tab-to-top"><button type="button" aria-label="scroll to top"><i class="fas fa-arrow-up"></i></button></div></div>
+<div class="note success flat"><p><i class="fas fa-check-circle"></i> 完成以上配置后，您将获得：</p>
+<ul>
+<li>🚀 全球CDN加速的图片访问体验</li>
+<li>🔒 自动管理的SSL证书</li>
+<li>📸 无缝的PicGo/VSCode上传集成</li>
+</ul>
+</div>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="shutiaoz.top">炸薯条</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://shutiaoz.top/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/%E4%BA%91%E5%AD%98%E5%82%A8/Cloudflare_GitHub_CDN/">https://shutiaoz.top/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/%E4%BA%91%E5%AD%98%E5%82%A8/Cloudflare_GitHub_CDN/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://shutiaoz.top" target="_blank">炸薯条🍟の求知笔记</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Github/">Github</a><a class="post-meta__tags" href="/tags/%E5%B7%A5%E5%85%B7%E9%93%BE/">工具链</a><a class="post-meta__tags" href="/tags/Cloudflare/">Cloudflare</a></div><div class="post-share"><div class="social-share" data-image="https://img.shutiaoz.top/blog/20250223114953.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/%E6%8C%87%E5%8D%97/Hexo/Hexo_Chinese_URL_Optimization/" title="Hexo中文URL优化指南：使用abbrlink插件实现永久链接标准化"><img class="cover" src="https://img.shutiaoz.top/blog/20250225141817.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">Hexo中文URL优化指南：使用abbrlink插件实现永久链接标准化</div></div><div class="info-2"><div class="info-item-1">详解如何通过hexo-abbrlink插件将Hexo中文URL转换为简洁的永久链接，提升博客SEO效果和可读性</div></div></div></a><a class="pagination-related" href="/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/Linux/Linux_Commands_Complete_Guide/" title="Linux常用命令大全：系统管理必备命令手册"><img class="cover" src="https://img.shutiaoz.top/blog/20250223202824.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Linux常用命令大全：系统管理必备命令手册</div></div><div class="info-2"><div class="info-item-1">全面整理Linux系统管理必备命令手册，涵盖文件操作、系统监控、网络管理等核心功能</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/%E4%BA%91%E5%AD%98%E5%82%A8/PicGo_VSCode_Github/" title="VSCode+PicGo打造无缝GitHub图床体验"><img class="cover" src="https://img.shutiaoz.top/blog/PicGo_logo.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2023-10-20</div><div class="info-item-2">VSCode+PicGo打造无缝GitHub图床体验</div></div><div class="info-2"><div class="info-item-1">详解如何通过VSCode+PicGo实现Markdown图片自动上传GitHub图床，解决本地路径问题，提升技术写作效率。</div></div></div></a></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="https://img.shutiaoz.top/blog/logo1.jfif" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">炸薯条</div><div class="author-info-description">「零散代码与学术札记的栖息地——这里存放着我的技术实践片段、学科思考涟漪，以及从实验室到键盘间那些笨拙却诚恳的求知轨迹，愿这些琐碎星光能照亮你我的共学之路。」</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">40</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/TRAVISZS"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/TravisZS" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客！</div><div id="welcome-242029z"></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">使用Cloudflare实现自定义域名加速GitHub图床</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E6%8B%A9Cloudflare%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">前言：为什么选择Cloudflare？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Cloudflare%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%BC%98%E5%8A%BF"><span class="toc-number">1.1.1.</span> <span class="toc-text">Cloudflare解决方案优势</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAGitHub%E4%BB%93%E5%BA%93%E5%B9%B6%E8%8E%B7%E5%8F%96%E8%AE%BF%E9%97%AE%E4%BB%A4%E7%89%8C"><span class="toc-number">1.2.</span> <span class="toc-text">创建GitHub仓库并获取访问令牌</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%85%8D%E7%BD%AECloudflare-Worker"><span class="toc-number">1.3.</span> <span class="toc-text">配置Cloudflare Worker</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BAWorker%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.3.1.</span> <span class="toc-text">1. 创建Worker服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%83%A8%E7%BD%B2%E5%9F%BA%E7%A1%80%E4%BB%A3%E7%A0%81"><span class="toc-number">1.3.2.</span> <span class="toc-text">2. 部署基础代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%B3%A8%E5%85%A5%E4%BB%A3%E7%90%86%E4%BB%A3%E7%A0%81"><span class="toc-number">1.3.3.</span> <span class="toc-text">3. 注入代理代码</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/%E6%A8%A1%E6%8B%9F%E5%B7%A5%E5%85%B7/%E6%A0%B8%E7%89%A9%E7%90%86/Talys_Installation_Guide/" title="Talys安装使用简单介绍"><img src="https://img.shutiaoz.top/blog/20250305180618.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Talys安装使用简单介绍"/></a><div class="content"><a class="title" href="/%E6%A8%A1%E6%8B%9F%E5%B7%A5%E5%85%B7/%E6%A0%B8%E7%89%A9%E7%90%86/Talys_Installation_Guide/" title="Talys安装使用简单介绍">Talys安装使用简单介绍</a><time datetime="2025-03-05T10:00:06.000Z" title="发表于 2025-03-05 18:00:06">2025-03-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/%E6%8C%87%E5%8D%97/Hexo/Hexo_Push_To_Search_Engine/" title="Hexo全自动搜索引擎推送指南 - 百度/谷歌/必应收录加速方案"><img src="https://img.shutiaoz.top/blog/20250301215414.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Hexo全自动搜索引擎推送指南 - 百度/谷歌/必应收录加速方案"/></a><div class="content"><a class="title" href="/%E6%8C%87%E5%8D%97/Hexo/Hexo_Push_To_Search_Engine/" title="Hexo全自动搜索引擎推送指南 - 百度/谷歌/必应收录加速方案">Hexo全自动搜索引擎推送指南 - 百度/谷歌/必应收录加速方案</a><time datetime="2025-03-03T09:24:04.000Z" title="发表于 2025-03-03 17:24:04">2025-03-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/%E7%AC%94%E8%AE%B0/C-C/Learn_Cpp/" title="C++ Primer Plus 学习笔记"><img src="https://img.shutiaoz.top/blog/20250227210429.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="C++ Primer Plus 学习笔记"/></a><div class="content"><a class="title" href="/%E7%AC%94%E8%AE%B0/C-C/Learn_Cpp/" title="C++ Primer Plus 学习笔记">C++ Primer Plus 学习笔记</a><time datetime="2025-02-27T13:02:44.000Z" title="发表于 2025-02-27 21:02:44">2025-02-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/%E5%86%99%E4%BD%9C%E5%B7%A5%E5%85%B7/LaTeX/Latex_VSCode/" title="告别Overleaf！本地使用VSCode搭建LaTeX写作环境"><img src="https://img.shutiaoz.top/blog/20250227162635.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="告别Overleaf！本地使用VSCode搭建LaTeX写作环境"/></a><div class="content"><a class="title" href="/%E5%86%99%E4%BD%9C%E5%B7%A5%E5%85%B7/LaTeX/Latex_VSCode/" title="告别Overleaf！本地使用VSCode搭建LaTeX写作环境">告别Overleaf！本地使用VSCode搭建LaTeX写作环境</a><time datetime="2025-02-27T08:09:55.000Z" title="发表于 2025-02-27 16:09:55">2025-02-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/Git_Commands_Complete_Guide/" title="Git命令大全：开发者必备的版本控制完全指南（Git Commands Complete Guide）"><img src="https://img.shutiaoz.top/blog/20250227143512.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Git命令大全：开发者必备的版本控制完全指南（Git Commands Complete Guide）"/></a><div class="content"><a class="title" href="/%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6/Git_Commands_Complete_Guide/" title="Git命令大全：开发者必备的版本控制完全指南（Git Commands Complete Guide）">Git命令大全：开发者必备的版本控制完全指南（Git Commands Complete Guide）</a><time datetime="2025-02-27T06:12:53.000Z" title="发表于 2025-02-27 14:12:53">2025-02-27</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2023 - 2025 By 炸薯条</div><div class="footer_custom_text">Hi, welcome to my <a href="https://shutiaoz.top/">blog</a>!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="前往评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><div class="js-pjax"><script>(async () => {
+  const showKatex = () => {
+    document.querySelectorAll('#article-container .katex').forEach(el => el.classList.add('katex-show'))
+  }
+
+  if (!window.katex_js_css) {
+    window.katex_js_css = true
+    await btf.getCSS('https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css')
+    if (true) {
+      await btf.getScript('https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js')
+    }
+  }
+
+  showKatex()
+})()</script><script>(() => {
+  const runMermaid = ele => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    ele.forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = `%%{init:{ 'theme':'${theme}'}}%%\n`
+      const mermaidID = `mermaid-${index}`
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+      const renderMermaid = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      // mermaid v9 and v10 compatibility
+      typeof renderFn === 'string' ? renderMermaid(renderFn) : renderFn.then(({ svg }) => renderMermaid(svg))
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+
+    codeMermaidEle.forEach(ele => {
+      const preEle = document.createElement('pre')
+      preEle.className = 'mermaid-src'
+      preEle.hidden = true
+      preEle.textContent = ele.textContent
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.appendChild(preEle)
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (true) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaidFn)
+  }
+
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script><script>(() => {
+  const isShuoshuo = GLOBAL_CONFIG_SITE.pageType === 'shuoshuo'
+  const option = null
+
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://pinglun.netlify.app/.netlify/functions/twikoo',
+      region: '',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const init = (el = document, path = location.pathname) => {
+    twikoo.init({
+      el: el.querySelector('#twikoo-wrap'),
+      envId: 'https://pinglun.netlify.app/.netlify/functions/twikoo',
+      region: '',
+      onCommentLoaded: () => {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      },
+      ...option,
+      path: isShuoshuo ? path : (option && option.path) || path
+    })
+
+    GLOBAL_CONFIG_SITE.pageType === 'post' && getCount()
+
+    isShuoshuo && (window.shuoshuoComment.destroyTwikoo = () => {
+      if (el.children.length) {
+        el.innerHTML = ''
+        el.classList.add('no-comment')
+      }
+    })
+  }
+
+  const loadTwikoo = (el, path) => {
+    if (typeof twikoo === 'object') setTimeout(() => init(el, path), 0)
+    else btf.getScript('https://cdn.jsdelivr.net/npm/twikoo/dist/twikoo.all.min.js').then(() => init(el, path))
+  }
+
+  if (isShuoshuo) {
+    'Twikoo' === 'Twikoo'
+      ? window.shuoshuoComment = { loadComment: loadTwikoo }
+      : window.loadOtherComment = loadTwikoo
+    return
+  }
+
+  if ('Twikoo' === 'Twikoo' || !false) {
+    if (false) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script></div><script src="https://cdn.staticfile.org/jquery/3.6.3/jquery.min.js"></script><script async data-pjax src="/js/txmap.js"></script><script async data-pjax src="/js/title.js"></script><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜点什么吧..." type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div><!-- hexo injector body_end start --> <script data-pjax>if(document.getElementById('recent-posts') && (location.pathname ==='/'|| '/' ==='all')){
+    var parent = document.getElementById('recent-posts');
+    var child = '<div class="recent-post-item" style="width:100%;height: auto"><div id="catalog_magnet"><div class="magnet_item"><a class="magnet_link" href="https://shutiaoz.top/categories/模拟工具/核物理/"><div class="magnet_link_context" style=""><span style="font-weight:500;flex:1">⚛️ 核物理 (2)</span><span style="padding:0px 4px;border-radius: 8px;"><i class="fas fa-arrow-circle-right"></i></span></div></a></div><div class="magnet_item"><a class="magnet_link" href="https://shutiaoz.top/categories/写作工具/"><div class="magnet_link_context" style=""><span style="font-weight:500;flex:1">📝 写作工具 (2)</span><span style="padding:0px 4px;border-radius: 8px;"><i class="fas fa-arrow-circle-right"></i></span></div></a></div><div class="magnet_item"><a class="magnet_link" href="https://shutiaoz.top/categories/开发工具/大模型/"><div class="magnet_link_context" style=""><span style="font-weight:500;flex:1">🤖 AI (1)</span><span style="padding:0px 4px;border-radius: 8px;"><i class="fas fa-arrow-circle-right"></i></span></div></a></div><div class="magnet_item"><a class="magnet_link" href="https://shutiaoz.top/categories/开发工具/"><div class="magnet_link_context" style=""><span style="font-weight:500;flex:1">🛠️ 开发工具 (5)</span><span style="padding:0px 4px;border-radius: 8px;"><i class="fas fa-arrow-circle-right"></i></span></div></a></div><a class="magnet_link_more"  href="https://shutiaoz.top/categories" style="flex:1;text-align: center;margin-bottom: 10px;">查看更多...</a></div></div>';
+    console.log('已挂载magnet')
+    parent.insertAdjacentHTML("afterbegin",child)}
+     </script><style>#catalog_magnet{flex-wrap: wrap;display: flex;width:100%;justify-content:space-between;padding: 10px 10px 0 10px;align-content: flex-start;}.magnet_item{flex-basis: calc(50% - 5px);background: #f2f2f2;margin-bottom: 10px;border-radius: 8px;transition: all 0.2s ease-in-out;}.magnet_item:hover{background: #b30070}.magnet_link_more{color:#555}.magnet_link{color:black}.magnet_link:hover{color:white}@media screen and (max-width: 600px) {.magnet_item {flex-basis: 100%;}}.magnet_link_context{display:flex;padding: 10px;font-size:16px;transition: all 0.2s ease-in-out;}.magnet_link_context:hover{padding: 10px 20px;}</style>
+    <style></style> <script data-pjax>if(document.getElementById('recent-posts') && location.pathname =='/'){
+    
+    var parent = document.getElementById('recent-posts');
+    var child = '<div class="recent-post-item" style="height: auto;width: 100%"><div class="blog-slider swiper-container-fade swiper-container-horizontal" id="swiper_container"><div class="blog-slider__wrp swiper-wrapper" style="transition-duration: 0ms"><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms"><div class="blog-slider__img"><img src="https://img.shutiaoz.top/blog/20250223123146.png" alt="https://img.shutiaoz.top/blog/20250223123146.png"/></div><div class="blog-slider__content"><span class="blog-slider__code">2025-02-25</span><a class="blog-slider__title" href="开发工具/大模型/DeepSeek-R1_VSCode/">手把手教学：火山方舟免费获取DeepSeek-R1满血版API，实现本地对话+VSCode智能编程</a><div class="blog-slider__text">基于火山引擎方舟平台，零成本获取DeepSeek-R1完整版API密钥，实现本地终端对话与VSCode智能补全双场景开发环境搭建，打造AI编程工作流。</div><a class="blog-slider__button" href="开发工具/大模型/DeepSeek-R1_VSCode/">详情</a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms"><div class="blog-slider__img"><img src="https://img.shutiaoz.top/blog/20250223220508.png" alt="https://img.shutiaoz.top/blog/20250223220508.png"/></div><div class="blog-slider__content"><span class="blog-slider__code">2025-01-04</span><a class="blog-slider__title" href="模拟工具/核物理/LISE++PACE4/">核反应模拟程序LISE++与PACE4实战指南</a><div class="blog-slider__text">从零开始掌握核物理实验必备的LISE++与PACE4模拟工具，详解界面操作与参数设置技巧</div><a class="blog-slider__button" href="模拟工具/核物理/LISE++PACE4/">详情</a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms"><div class="blog-slider__img"><img src="https://img.shutiaoz.top/blog/20250227162635.png" alt="https://img.shutiaoz.top/blog/20250227162635.png"/></div><div class="blog-slider__content"><span class="blog-slider__code">2025-02-27</span><a class="blog-slider__title" href="写作工具/LaTeX/Latex_VSCode/">告别Overleaf！本地使用VSCode搭建LaTeX写作环境</a><div class="blog-slider__text">告别Overleaf！本地使用VSCode搭建LaTeX写作环境</div><a class="blog-slider__button" href="写作工具/LaTeX/Latex_VSCode/">详情</a></div></div><div class="blog-slider__item swiper-slide" style="width: 750px; opacity: 1; transform: translate3d(0px, 0px, 0px); transition-duration: 0ms"><div class="blog-slider__img"><img src="https://img.shutiaoz.top/blog/20250223212928.png" alt="https://img.shutiaoz.top/blog/20250223212928.png"/></div><div class="blog-slider__content"><span class="blog-slider__code">2025-01-28</span><a class="blog-slider__title" href="写作工具/LaTeX/Markdown_LaTeX_Math_Symbols_Guide/">Markdown/LaTeX 数学符号完全指南</a><div class="blog-slider__text">最全面的Markdown/LaTeX数学公式排版指南</div><a class="blog-slider__button" href="写作工具/LaTeX/Markdown_LaTeX_Math_Symbols_Guide/">详情</a></div></div></div><div class="blog-slider__pagination swiper-pagination-clickable swiper-pagination-bullets"></div></div></div>';
+    console.log('已挂载swiper')
+    parent.insertAdjacentHTML("afterbegin",child)}
+     </script>
+<script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-swiper/swiper/swiper.min.js"></script>
+<script data-pjax src="https://cdn.jsdelivr.net/gh/Zfour/Butterfly-swiper@0.18/swiper/swiperindex.js"></script>
+<style></style><!-- hexo injector body_end end --></body></html>
